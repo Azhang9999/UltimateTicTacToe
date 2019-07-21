@@ -75,7 +75,6 @@ class NormalGame(object):
                 line += " "
         return line + "|"
 
-        
     def show_board(self, board):
         """ prints the position of everyone on the board"""
         
@@ -140,7 +139,7 @@ class NormalGame(object):
 
         self - the game instance
         board - (int) the game instance
-        side - 1 or 0 desides the side that is being checked
+        side - 1 or 0 decides the side that is being checked
         """
         if side%2 == 1:
             if board in self.xBoards:
@@ -233,24 +232,19 @@ class RandomRunner(GameRunner):
         board = None
         while self.game.determineWinner() == None and len(self.game.freeBoards) > 0:
             board = self.game.next_step(side%2, coordinate, board)
-            #print(self.game.show_game()+'*********************')
             if self.game.determineOwnership(side%2, coordinate[0]):
                 board = None
             if board not in self.game.freeBoards:
                 board = None
             side += 1
-            #print (side%2, self.game.xBoards, self.game.oBoards, self.game.freeBoards)
             if len(self.game.freeBoards) == 0:
                 break
             if board == None:
                 while coordinate not in self.game.empty or coordinate[0] not in self.game.freeBoards:
                     coordinate = (random.randint(1,9), random.randint(1, 9))
-                    #print (coordinate)
             else:
                 while coordinate not in self.game.empty:
                     coordinate = (board, random.randint(1, 9))
-                    #print (coordinate)
-##        print (len(self.game.cross))
         return (self.game.determineWinner(), self.game.cross, self.game.circle)
         
         
