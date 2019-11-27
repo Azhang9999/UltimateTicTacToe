@@ -10,9 +10,26 @@ count = 0
 cache = {}
 
 class BetterNormalGame(object):
-    """ Better implementation of NormalGame """
+    """
+    Better implementation of NormalGame
+    cross = 1 and circle = -1 universally in this version
+    blank space = 0
+    board represented by a 2D list
+    if a side ever wins a board, the whole tuple is replaced with the
+    int value of the side that won it
+    """
+    winning = [(1,2,3),(1,4,7),(1,5,9),(2,5,8),(3,5,7),(3,6,9),
+                    (4,5,6),(7,8,9)]
 
-    def __init__(self, )
+    def __init__(self, game = None):
+        if game == None:
+            self.board = []
+            for i in range(9):
+                self.board.append([])
+                for _ in range(9):
+                    self.board[i].append(0)
+            return
+
 
 @deprecated("this class is deprecated")
 class NormalGame(object):
