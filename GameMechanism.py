@@ -2,7 +2,7 @@
 """This File allows the user to run the game"""
 import random
 import copy
-from deprecated import deprecated
+#from deprecated import deprecated
 
 
 
@@ -22,16 +22,23 @@ class BetterNormalGame(object):
                     (4,5,6),(7,8,9)]
 
     def __init__(self, game = None):
-        if game == None:
+        ## Copying the existing game
+        if game != None:
+            self.board = game.board.copy()
+            return
+        ## Creating a new game bc no game is passed in
+        else:
             self.board = []
             for i in range(9):
                 self.board.append([])
                 for _ in range(9):
                     self.board[i].append(0)
-            return
+
+    def get_board()
 
 
-@deprecated("this class is deprecated")
+
+#@deprecated("this class is deprecated")
 class NormalGame(object):
 
     def __init__(self, empty = [], cross = [], circle = [], xDict = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[]}
@@ -410,3 +417,7 @@ class TreeRunner(GameRunner):
 ##game.xMove((1,3))
 ##print(game.show_game())
 ##print(game.determineOwnership(2, 'x'))
+
+if __name__ == "__main__":
+    g = BetterNormalGame()
+    print(g.board)
