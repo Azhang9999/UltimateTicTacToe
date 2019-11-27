@@ -2,11 +2,19 @@
 """This File allows the user to run the game"""
 import random
 import copy
+from deprecated import deprecated
 
 
 
 count = 0
 cache = {}
+
+class BetterNormalGame(object):
+    """ Better implementation of NormalGame """
+
+    def __init__(self, )
+
+@deprecated("this class is deprecated")
 class NormalGame(object):
 
     def __init__(self, empty = [], cross = [], circle = [], xDict = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[]}
@@ -58,7 +66,7 @@ class NormalGame(object):
 
     def get_cross(self):
         return self.cross.copy()
-    
+
     def show_row(self, row, board):
         """ returns the row of the board in the game"""
         cross = self.xDict[board]
@@ -77,14 +85,14 @@ class NormalGame(object):
 
     def show_board(self, board):
         """ prints the position of everyone on the board"""
-        
+
         answer = ""
         for x in range(0,3):
             answer += "-------\n"
             answer += show_row(x, board) +"\n"
         answer += "-------"
         return answer
-        
+
     def show_game(self):
         """ Displays the whole layout of the game"""
         answer = ""
@@ -99,7 +107,7 @@ class NormalGame(object):
                 answer += "\n-------    -------    -------\n"
             answer += "\n"
         return answer
-            
+
 
     def xMove(self, coordinate):
         """
@@ -147,7 +155,7 @@ class NormalGame(object):
             played = self.xDict[board]
         else:
             if board in self.oBoards:
-                return True 
+                return True
             played = self.yDict[board]
         if board not in self.freeBoards:
             return False
@@ -161,7 +169,7 @@ class NormalGame(object):
                 if side%2 == 1:
                     self.xBoards.append(board)
                 else:
-                    self.oBoards.append(board)  
+                    self.oBoards.append(board)
                 return True
         full = True
         for element in self.empty:
@@ -206,7 +214,7 @@ class NormalGame(object):
             return self.xMove(inp)
         else:
             return self.oMove(inp)
-        
+
 
 
 class GameRunner(object):
@@ -246,8 +254,8 @@ class RandomRunner(GameRunner):
                 while coordinate not in self.game.empty:
                     coordinate = (board, random.randint(1, 9))
         return (self.game.determineWinner(), self.game.cross, self.game.circle)
-        
-        
+
+
 def statistical_runner():
     o = 0
     x = 0
@@ -287,7 +295,7 @@ class TreeRunner(GameRunner):
                         return 1
                     elif score == 0:
                         #print("has_board response")
-                        return 0 
+                        return 0
                     else:
                         overallScore += score
                 return overallScore / len(listOfOkay)
@@ -351,8 +359,8 @@ class TreeRunner(GameRunner):
                 answer = answer / len(game.freeBoards)
                 enter_cache(answer)
                 return answer
-                
-            
+
+
 
     def run_game_first(self):
         """runs the code and do a depth first search for the best solution
@@ -385,7 +393,3 @@ class TreeRunner(GameRunner):
 ##game.xMove((1,3))
 ##print(game.show_game())
 ##print(game.determineOwnership(2, 'x'))
-
-
-    
-        
