@@ -32,7 +32,7 @@ class BetterNormalGame(object):
             for i in range(9):
                 self.universe.append([])
                 for _ in range(9):
-                    self.universei].append(0)
+                    self.universe[i].append(0)
 
     def get_universe():
         return self.universe.copy()
@@ -50,13 +50,33 @@ class BetterNormalGame(object):
             return BetterNormalGame.convert_side_int_to_str(self.univers[board])
         line = ""
         for x in range(0, 3):
-            check = 3 * row + x + 1
-            line += "|" +
-            BetterNormalGame.convert_side_int_to_str(self.universe[board][check])
-        return line = "|"
+            check = 3 * row + x
+            line += "|" + BetterNormalGame.convert_side_int_to_str(self.universe[board][check])
+        return line + "|"
 
     def show_board(self, board):
+        """ prints the position of everyone on the board"""
+        answer = ""
+        for x in range(0, 3):
+            answer += "-------\n"
+            answer += self.show_row(x, board) +"\n"
+        answer += "-------"
+        return answer
 
+    def show_game(self):
+        """ Displays the whole layout of the game"""
+        answer = ""
+        for x in range(0,3):
+            # x determins the big row number
+            answer += "\n-------    -------    -------\n"
+            for y in range(0,3):
+                # y determins the rwo number
+                for z in range(0,3):
+                    # z determins the board number
+                    answer += self.show_row((y), (x*3+z))+ "    "
+                answer += "\n-------    -------    -------\n"
+            answer += "\n"
+        return answer
 
 
 #@deprecated("this class is deprecated")
@@ -441,4 +461,4 @@ class TreeRunner(GameRunner):
 
 if __name__ == "__main__":
     g = BetterNormalGame()
-    print(g.board)
+    print(g.show_game())
