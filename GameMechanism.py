@@ -24,17 +24,38 @@ class BetterNormalGame(object):
     def __init__(self, game = None):
         ## Copying the existing game
         if game != None:
-            self.board = game.board.copy()
+            self.universe = game.get_universe()
             return
         ## Creating a new game bc no game is passed in
         else:
-            self.board = []
+            self.universe = []
             for i in range(9):
-                self.board.append([])
+                self.universe.append([])
                 for _ in range(9):
-                    self.board[i].append(0)
+                    self.universei].append(0)
 
-    def get_board()
+    def get_universe():
+        return self.universe.copy()
+
+    def convert_side_int_to_str(side_int):
+        if side_int == 1:
+            return "X"
+        elif side_int == -1:
+            return "O"
+        return " "
+
+    def show_row(self, row, board):
+        """ returns the row of the board in the game"""
+        if isinstance(self.universe[board], int):
+            return BetterNormalGame.convert_side_int_to_str(self.univers[board])
+        line = ""
+        for x in range(0, 3):
+            check = 3 * row + x + 1
+            line += "|" +
+            BetterNormalGame.convert_side_int_to_str(self.universe[board][check])
+        return line = "|"
+
+    def show_board(self, board):
 
 
 
