@@ -20,6 +20,8 @@ class BetterNormalGame(object):
     """
     winning = [(1,2,3),(1,4,7),(1,5,9),(2,5,8),(3,5,7),(3,6,9),
                     (4,5,6),(7,8,9)]
+    cross = 1
+    circle = -1
 
     def __init__(self, game = None):
         ## Copying the existing game
@@ -38,7 +40,7 @@ class BetterNormalGame(object):
         return self.universe.copy()
 
     def convert_side_int_to_str(side_int):
-        if side_int == 1:
+        if side_int == self.get_cross:
             return "X"
         elif side_int == -1:
             return "O"
@@ -47,7 +49,8 @@ class BetterNormalGame(object):
     def show_row(self, row, board):
         """ returns the row of the board in the game"""
         if isinstance(self.universe[board], int):
-            return BetterNormalGame.convert_side_int_to_str(self.univers[board])
+            side = BetterNormalGame.convert_side_int_to_str(self.univers[board])
+            return "|" + side + "|" + side + "|" + side + "|"
         line = ""
         for x in range(0, 3):
             check = 3 * row + x
@@ -77,6 +80,31 @@ class BetterNormalGame(object):
                 answer += "\n-------    -------    -------\n"
             answer += "\n"
         return answer
+
+    def determineOwnership(self, board_number):
+        """
+        determine if anyone owns the board
+        if ownership established
+        move the board from freeBoards to owned boards of a particular side
+
+        self - the game instance
+        board_number - (int) the game instance
+        """
+        board = self.universe[board_number]
+        if isinstance(board, int):
+            return board
+        for item in self.winning:
+            score = 0
+            for spot in item:
+                score += board[spot]
+            if score == 3:
+                self.universe[board_number] = 1
+                return 1
+            elif score == -3:
+                self.universe[board_number] = -1
+                return -1
+
+
 
 
 #@deprecated("this class is deprecated")
