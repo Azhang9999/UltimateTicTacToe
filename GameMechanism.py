@@ -27,6 +27,7 @@ class BetterNormalGame(object):
         ## Copying the existing game
         if game != None:
             self.universe = game.get_universe()
+            self.must_move_board = game.get_must_move_board()
             return
         ## Creating a new game bc no game is passed in
         else:
@@ -35,14 +36,18 @@ class BetterNormalGame(object):
                 self.universe.append([])
                 for _ in range(9):
                     self.universe[i].append(0)
+        self.must_move_board = None
 
     def get_universe():
         return self.universe.copy()
 
+    def get_must_move_board():
+        return self.must_move_board
+
     def convert_side_int_to_str(side_int):
         if side_int == self.get_cross:
             return "X"
-        elif side_int == -1:
+        elif side_int == self.get_circle:
             return "O"
         return " "
 
@@ -84,8 +89,8 @@ class BetterNormalGame(object):
     def determineOwnership(self, board_number):
         """
         determine if anyone owns the board
-        if ownership established
-        move the board from freeBoards to owned boards of a particular side
+        returns the owner or None otherwise
+        board marked as owned if anyone owns the boards
 
         self - the game instance
         board_number - (int) the game instance
@@ -97,13 +102,39 @@ class BetterNormalGame(object):
             score = 0
             for spot in item:
                 score += board[spot]
-            if score == 3:
-                self.universe[board_number] = 1
-                return 1
-            elif score == -3:
-                self.universe[board_number] = -1
-                return -1
+            if score == 3 * self.cross:
+                self.universe[board_number] = self.cross
+                return self.cross
+            elif score == 3 * self.circle:
+                self.universe[board_number] = self.circle
+                return self.circle
+        return None
 
+    def determineWinner(self):
+    """ Returns the winner (self.circle or self.cross) of the game or None """
+        for item in self.winning:
+            score = 0
+            for board in item:
+                if isinstance(board, int):
+                    score += board
+            if score == 3 * self.cross:
+                return self.cross
+            elif score == 3 * self.circle:
+                return self.circle
+        return None
+
+    def move(self, side, coordinate):
+        """
+        Assuming that the coordinate is unoccupied
+        let the side make the move
+        and check ownership and change must_move_board
+        """
+        assert (self.universe[coordinate[0]][coordinate[1]] == 0)
+        self.univers[coordinate[0]][coordinate[1]] = side
+        self.determineOwnership(coordinate[0])
+        if isinstance(coordinate[1], int):
+            self.must_move_board = None
+        
 
 
 
