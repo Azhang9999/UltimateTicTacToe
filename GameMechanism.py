@@ -134,7 +134,23 @@ class BetterNormalGame(object):
         self.determineOwnership(coordinate[0])
         if isinstance(coordinate[1], int):
             self.must_move_board = None
-        
+
+    def next_step(self, side, inp):
+        """
+        Plays the next step for the game
+        returns the board choice of the next move or None if free reign
+        (need to determine winner and ownership)
+
+        side - self.circle or self.cross denoting the side that is playing
+        inp - (<int>,<int>) denoting the coordinate that is being played
+        board - the board that has to be placed on
+        """
+        assert self.determineWinner() == None, "{} already won".format(BetterNormalGame.convert_side_int_to_str(self.determineWinner()))
+        if self.must_move_board != None and isinstance(universe[board], int):
+            self.must_move_board = None
+        if self.must_move_board != None:
+            assert inp[0] == self.must_move_board
+        self.move(inp)
 
 
 
