@@ -38,16 +38,16 @@ class BetterNormalGame(object):
                     self.universe[i].append(0)
         self.must_move_board = None
 
-    def get_universe():
+    def get_universe(self):
         return self.universe.copy()
 
-    def get_must_move_board():
+    def get_must_move_board(self):
         return self.must_move_board
 
     def convert_side_int_to_str(side_int):
-        if side_int == self.get_cross:
+        if side_int == BetterNormalGame.cross:
             return "X"
-        elif side_int == self.get_circle:
+        elif side_int == BetterNormalGame.circle:
             return "O"
         return " "
 
@@ -111,7 +111,7 @@ class BetterNormalGame(object):
         return None
 
     def determineWinner(self):
-    """ Returns the winner (self.circle or self.cross) of the game or None """
+        """ Returns the winner (self.circle or self.cross) of the game or None """
         for item in self.winning:
             score = 0
             for board in item:
@@ -130,7 +130,7 @@ class BetterNormalGame(object):
         and check ownership and change must_move_board
         """
         assert (self.universe[coordinate[0]][coordinate[1]] == 0)
-        self.univers[coordinate[0]][coordinate[1]] = side
+        self.universe[coordinate[0]][coordinate[1]] = side
         self.determineOwnership(coordinate[0])
         if isinstance(coordinate[1], int):
             self.must_move_board = None
@@ -151,7 +151,6 @@ class BetterNormalGame(object):
         if self.must_move_board != None:
             assert inp[0] == self.must_move_board
         self.move(inp)
-
 
 
 #@deprecated("this class is deprecated")
