@@ -18,8 +18,7 @@ class BetterNormalGame(object):
     if a side ever wins a board, the whole tuple is replaced with the
     int value of the side that won it
     """
-    winning = [(1,2,3),(1,4,7),(1,5,9),(2,5,8),(3,5,7),(3,6,9),
-                    (4,5,6),(7,8,9)]
+    winning = [(0, 1, 2), (0, 3, 6), (0, 4, 8), (1, 4, 7), (2, 4, 6), (2, 5, 8), (3, 4, 5), (6, 7, 8)]
     cross = 1
     circle = -1
 
@@ -115,7 +114,7 @@ class BetterNormalGame(object):
         for item in self.winning:
             score = 0
             for board in item:
-                if isinstance(board, int):
+                if isinstance(self.universe[board], int):
                     score += board
             if score == 3 * self.cross:
                 return self.cross
@@ -132,7 +131,8 @@ class BetterNormalGame(object):
         assert (self.universe[coordinate[0]][coordinate[1]] == 0)
         self.universe[coordinate[0]][coordinate[1]] = side
         self.determineOwnership(coordinate[0])
-        if isinstance(coordinate[1], int):
+        self.must_move_board = coordinate[1]
+        if isinstance(self.universe[coordinate[1]], int):
             self.must_move_board = None
 
     def next_step(self, side, inp):
@@ -146,11 +146,11 @@ class BetterNormalGame(object):
         board - the board that has to be placed on
         """
         assert self.determineWinner() == None, "{} already won".format(BetterNormalGame.convert_side_int_to_str(self.determineWinner()))
-        if self.must_move_board != None and isinstance(universe[board], int):
+        if self.must_move_board != None and isinstance(self.universe[board], int):
             self.must_move_board = None
         if self.must_move_board != None:
             assert inp[0] == self.must_move_board
-        self.move(inp)
+        self.move(side, inp)
 
 
 #@deprecated("this class is deprecated")
