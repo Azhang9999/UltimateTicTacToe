@@ -21,6 +21,7 @@ class BetterNormalGame(object):
     winning = [(0, 1, 2), (0, 3, 6), (0, 4, 8), (1, 4, 7), (2, 4, 6), (2, 5, 8), (3, 4, 5), (6, 7, 8)]
     cross = 1
     circle = -1
+    none_coordinate = (10, 10)
 
     def __init__(self, game = None):
         ## Copying the existing game
@@ -158,6 +159,8 @@ class BetterNormalGame(object):
 
 
     def is_coord_valid(self, coordinate):
+        if coordinate == self.none_coordinate:
+            return False
         if isinstance(self.universe[coordinate[0]], int):
             return False
         if self.universe[coordinate[0]][coordinate[1]] != 0:
@@ -175,24 +178,23 @@ class GameRunner(object):
             game - an instance of the NormalGame instance
             output - place whete it is outputed
             """
-        self.game = NormalGame()
+        self.game = BetterNormalGame()
 
 
 class RandomRunner(GameRunner):
     """ Computer plays against itself using random integers"""
 
     def run_game(self):
-        game = BetterNormalGame()
         coordinate = (random.randint(0, 8), random.randint(0, 8))
         side = 1
         while self.game.determineWinner() == None:
             board = self.game.get_must_move_board()
-            coordinate = None
-            while coordinate != None and not game.is_coord_valid(coordinate):
+            coordinate = self.game.none_coordinate
+            while coordinate == None or not self.game.is_coord_valid(coordinate):
                 coordinate = (board, random.randint(0, 8))
                 if board != None:
                     coordinate = (random.randint(0, 8), coordinate[1])
-            game.next_step(side, coordinate)
+            self.game.next_step(side, coordinate)
             side = -1 * side
         return (self.game.determineWinner())
 
