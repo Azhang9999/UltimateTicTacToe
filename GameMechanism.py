@@ -76,14 +76,14 @@ class BetterNormalGame(object):
     def show_game(self):
         """ Displays the whole layout of the game"""
         answer = ""
-        for x in range(0,3):
+        for x in range(0, 3):
             # x determins the big row number
             answer += "\n-------    -------    -------\n"
-            for y in range(0,3):
-                # y determins the rwo number
-                for z in range(0,3):
+            for y in range(0, 3):
+                # y determins the row number
+                for z in range(0, 3):
                     # z determins the board number
-                    answer += self.show_row((y), (x*3+z))+ "    "
+                    answer += self.show_row((y), (x*3+z)) + "    "
                 answer += "\n-------    -------    -------\n"
             answer += "\n"
         return answer
@@ -131,8 +131,6 @@ class BetterNormalGame(object):
                 return self.cross
             elif score == 3 * self.circle:
                 return self.circle
-        if self.move_number >= 81:
-            return 0
         if len(taken_board) == 9:
             return 0
         return None
@@ -168,6 +166,11 @@ class BetterNormalGame(object):
         self.move(side, inp)
 
     def is_coord_valid(self, coordinate):
+        """
+        Checks if the coordinate is a valid coordinate. Non valid coordinate includes the None coordinate,
+        coordinate that is already taken, coordinate that is in a board that is already taken, and coordinate that
+        is not in a board that the coordinate is being restricted to.
+        """
         if coordinate == self.none_coordinate:
             return False
         if isinstance(self.universe[coordinate[0]], int):
@@ -194,6 +197,10 @@ class RandomRunner(GameRunner):
     """ Computer plays against itself using random integers"""
 
     def run_game(self):
+        """
+        Runs a game randomly until it finishes.
+        :returns: an int representing the winner of the game that is run randomly
+        """
         side = 1
         while not self.game.determine_winner() and self.game.determine_winner() != 0:
             self.game.show_game()
@@ -208,10 +215,16 @@ class RandomRunner(GameRunner):
         return self.game.determine_winner()
 
 
-def statistical_run():
+def statistical_run(times):
+    """
+    Makes a Random Runner class and runs the game randomly times amount
+
+    :arg times: the amount of times that random game is run
+    :return: the results of running the game randomly times amount
+    """
     o = 0
     x = 0
-    for y in range(0, 10000):
+    for y in range(0, times):
         runner = RandomRunner()
         result = runner.run_game()
         if result == BetterNormalGame.cross:
@@ -312,8 +325,6 @@ class TreeRunner(GameRunner):
                 enter_cache(answer)
                 return answer
 
-
-
     def run_game_first(self):
         """runs the code and do a depth first search for the best solution
             Going to be fun
@@ -337,14 +348,6 @@ class TreeRunner(GameRunner):
                 firstMoveDict[(x,y)] = self.next_turn(1, 'x', self.game.copy(), (x, y), None)
         return firstMoveDict
 
-#statistical_runner()
-
-##game = NormalGame()
-##game.xMove((1,1))
-##game.xMove((1,2))
-##game.xMove((1,3))
-##print(game.show_game())
-##print(game.determineOwnership(2, 'x'))
 
 if __name__ == "__main__":
-    statistical_run()
+    statistical_run(100)
