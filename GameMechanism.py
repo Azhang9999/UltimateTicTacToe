@@ -2,12 +2,10 @@
 """This File allows the user to run the game"""
 import random
 import copy
-#from deprecated import deprecated
-
-
 
 count = 0
 cache = {}
+
 
 class BetterNormalGame(object):
     """
@@ -23,26 +21,30 @@ class BetterNormalGame(object):
     circle = -1
     none_coordinate = (10, 10)
 
-    def __init__(self, game = None):
-        ## Copying the existing game
-        if game != None:
+    def __init__(self, game=None):
+        # Copying the existing game
+        if game:
             self.universe = game.get_universe()
             self.must_move_board = game.get_must_move_board()
-            return
-        ## Creating a new game bc no game is passed in
+            self.move_number = game.get_move_number()
+        # Creating a new game bc no game is passed in
         else:
             self.universe = []
             for i in range(9):
                 self.universe.append([])
                 for _ in range(9):
                     self.universe[i].append(0)
-        self.must_move_board = None
+            self.must_move_board = None
+            self.move_number = 0
 
     def get_universe(self):
         return self.universe.copy()
 
     def get_must_move_board(self):
         return self.must_move_board
+
+    def get_move_number(self):
+        return self.move_number
 
     def convert_side_int_to_str(side_int):
         if side_int == BetterNormalGame.cross:
@@ -54,7 +56,7 @@ class BetterNormalGame(object):
     def show_row(self, row, board):
         """ returns the row of the board in the game"""
         if isinstance(self.universe[board], int):
-            side = BetterNormalGame.convert_side_int_to_str(self.univers[board])
+            side = BetterNormalGame.convert_side_int_to_str(self.universe[board])
             return "|" + side + "|" + side + "|" + side + "|"
         line = ""
         for x in range(0, 3):
@@ -86,7 +88,10 @@ class BetterNormalGame(object):
             answer += "\n"
         return answer
 
-    def determineOwnership(self, board_number):
+    def __str__(self):
+        return self.show_game()
+
+    def determine_ownership(self, board_number):
         """
         determine if anyone owns the board
         returns the owner or None otherwise
@@ -108,9 +113,12 @@ class BetterNormalGame(object):
             elif score == 3 * self.circle:
                 self.universe[board_number] = self.circle
                 return self.circle
+        if 0 not in board:
+            self.universe[board_number] = 0
+            return 0
         return None
 
-    def determineWinner(self):
+    def determine_winner(self):
         """ Returns the winner (self.circle or self.cross) of the game or None """
         taken_board = {}
         for item in self.winning:
@@ -118,11 +126,13 @@ class BetterNormalGame(object):
             for board in item:
                 if isinstance(self.universe[board], int):
                     taken_board[board] = int
-                    score += board
+                    score += self.universe[board]
             if score == 3 * self.cross:
                 return self.cross
             elif score == 3 * self.circle:
                 return self.circle
+        if self.move_number >= 81:
+            return 0
         if len(taken_board) == 9:
             return 0
         return None
@@ -135,10 +145,11 @@ class BetterNormalGame(object):
         """
         assert (self.universe[coordinate[0]][coordinate[1]] == 0)
         self.universe[coordinate[0]][coordinate[1]] = side
-        self.determineOwnership(coordinate[0])
+        self.determine_ownership(coordinate[0])
         self.must_move_board = coordinate[1]
         if isinstance(self.universe[coordinate[1]], int):
             self.must_move_board = None
+        self.move_number += 1
 
     def next_step(self, side, inp):
         """
@@ -150,13 +161,11 @@ class BetterNormalGame(object):
         inp - (<int>,<int>) denoting the coordinate that is being played
         board - the board that has to be placed on
         """
-        assert self.determineWinner() == None, "{} already won".format(BetterNormalGame.convert_side_int_to_str(self.determineWinner()))
-        if self.must_move_board != None and isinstance(self.universe[inp[0]], int):
+        assert not self.determine_winner(), "{} already won".format(BetterNormalGame.convert_side_int_to_str(
+            self.determine_winner()))
+        if not self.must_move_board and isinstance(self.universe[inp[0]], int):
             self.must_move_board = None
-        if self.must_move_board != None:
-            assert inp[0] == self.must_move_board
         self.move(side, inp)
-
 
     def is_coord_valid(self, coordinate):
         if coordinate == self.none_coordinate:
@@ -165,9 +174,10 @@ class BetterNormalGame(object):
             return False
         if self.universe[coordinate[0]][coordinate[1]] != 0:
             return False
-        if self.must_move_board != None and coordinate[0] != self.must_move_board:
+        if self.must_move_board and coordinate[0] != self.must_move_board:
             return False
         return True
+
 
 class GameRunner(object):
     """ skeleton code for the program that runs the game,
@@ -176,7 +186,6 @@ class GameRunner(object):
         """ Creates an instance of gameRunner
 
             game - an instance of the NormalGame instance
-            output - place whete it is outputed
             """
         self.game = BetterNormalGame()
 
@@ -185,35 +194,35 @@ class RandomRunner(GameRunner):
     """ Computer plays against itself using random integers"""
 
     def run_game(self):
-        coordinate = (random.randint(0, 8), random.randint(0, 8))
         side = 1
-        while self.game.determineWinner() == None:
+        while not self.game.determine_winner() and self.game.determine_winner() != 0:
+            self.game.show_game()
             board = self.game.get_must_move_board()
             coordinate = self.game.none_coordinate
-            while coordinate == None or not self.game.is_coord_valid(coordinate):
+            while not self.game.is_coord_valid(coordinate):
                 coordinate = (board, random.randint(0, 8))
-                if board != None:
+                if not board:
                     coordinate = (random.randint(0, 8), coordinate[1])
             self.game.next_step(side, coordinate)
             side = -1 * side
-        return (self.game.determineWinner())
+        return self.game.determine_winner()
 
 
-def statistical_runner():
+def statistical_run():
     o = 0
     x = 0
-    for y in range(0,100):
-        print (y, o, x)
+    for y in range(0, 10000):
         runner = RandomRunner()
-        if runner.run_game()[0] == BetterNormalGame.cross:
+        result = runner.run_game()
+        if result == BetterNormalGame.cross:
             x += 1
-        else:
+        elif result == BetterNormalGame.circle:
             o += 1
     print(o, x)
 
 class TreeRunner(GameRunner):
 
-    def next_turn(self, side, sideChecked, game, inp, board):
+    def next_turn(self, side, side_checked, game, inp, board):
         def enter_cache(number):
             cross = game.get_cross().copy()
             cross.sort()
@@ -233,7 +242,7 @@ class TreeRunner(GameRunner):
                     if element[0] == board:
                         listOfOkay.append(element)
                 for inp in listOfOkay:
-                    score = self.next_turn((side+1)%2, sideChecked, game.copy(), inp, board)
+                    score = self.next_turn((side+1) % 2, side_checked, game.copy(), inp, board)
                     if score == 1:
                         return 1
                     elif score == 0:
@@ -258,13 +267,13 @@ class TreeRunner(GameRunner):
             return cache[(cross, circle, board, side)]
         #### CHECKING BASE CONDITIONS ####
         global count
-        if game.determineWinner() == 'x':
+        if game.determine_winner() == 'x':
             enter_cache(1)
             count = count + 1
             print(count)
             #print("WE WON")
             return 1
-        elif game.determineWinner() == 'o':
+        elif game.determine_winner() == 'o':
             enter_cache(0)
             #print ("ENTERED: ", game.circle)
             #print ("---------------------------------")
@@ -272,7 +281,7 @@ class TreeRunner(GameRunner):
             print(count)
             return 0
         elif len(game.freeBoards) == 0:
-            assert game.determineWinner() == None, "actual winner : {}".format(game.determineWinner())
+            assert game.determine_winner() == None, "actual winner : {}".format(game.determine_winner())
             enter_cache(0.5)
             #print ("---------------------------------")
             count += 1
@@ -338,4 +347,4 @@ class TreeRunner(GameRunner):
 ##print(game.determineOwnership(2, 'x'))
 
 if __name__ == "__main__":
-    statistical_runner()
+    statistical_run()

@@ -10,7 +10,7 @@ def new_game():
 def game_runner():
     game = BetterNormalGame()
     side = game.cross
-    while game.determineWinner() == None:
+    while game.determine_winner() == None:
         print (game.show_game())
         if game.get_must_move_board() == None:
             print ('you can move in any board')
@@ -24,7 +24,7 @@ def game_runner():
                 inp = eval(inp)
         game.next_step(side, inp)
         side = -1 * side
-    print (BetterNormalGame.convert_side_int_to_str(game.determineWinner()))
+    print (BetterNormalGame.convert_side_int_to_str(game.determine_winner()))
 
 if __name__ == "__main__":
     new_game()

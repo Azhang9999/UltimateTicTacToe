@@ -35,7 +35,8 @@ def create_final_game(first):
 def step_game(first):
     game = NormalGame()
     for x in range(0,min(len(first[0]),len(first[1]))):
-        assert game.determineWinner() == None, str(x) + str(first[0][x]) + str(first[1][x]) + str(game.determineWinner()) + str(game.cross) + str(game.circle)
+        assert game.determine_winner() == None, str(x) + str(first[0][x]) + str(first[1][x]) + str(
+            game.determine_winner()) + str(game.cross) + str(game.circle)
         game.xMove(first[0][x])
         game.oMove(first[1][x])
     if len(first[0]) < len(first[1]):
