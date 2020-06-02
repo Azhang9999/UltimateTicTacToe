@@ -26,7 +26,6 @@ class BetterNormalGame(object):
         if game:
             self.universe = game.get_universe()
             self.must_move_board = game.get_must_move_board()
-            self.move_number = game.get_move_number()
         # Creating a new game bc no game is passed in
         else:
             self.universe = []
@@ -35,16 +34,12 @@ class BetterNormalGame(object):
                 for _ in range(9):
                     self.universe[i].append(0)
             self.must_move_board = None
-            self.move_number = 0
 
     def get_universe(self):
         return self.universe.copy()
 
     def get_must_move_board(self):
         return self.must_move_board
-
-    def get_move_number(self):
-        return self.move_number
 
     def convert_side_int_to_str(side_int):
         if side_int == BetterNormalGame.cross:
@@ -77,12 +72,12 @@ class BetterNormalGame(object):
         """ Displays the whole layout of the game"""
         answer = ""
         for x in range(0, 3):
-            # x determins the big row number
+            # x determines the big row number
             answer += "\n-------    -------    -------\n"
             for y in range(0, 3):
-                # y determins the row number
+                # y determines the row number
                 for z in range(0, 3):
-                    # z determins the board number
+                    # z determines the board number
                     answer += self.show_row((y), (x*3+z)) + "    "
                 answer += "\n-------    -------    -------\n"
             answer += "\n"
@@ -147,7 +142,6 @@ class BetterNormalGame(object):
         self.must_move_board = coordinate[1]
         if isinstance(self.universe[coordinate[1]], int):
             self.must_move_board = None
-        self.move_number += 1
 
     def next_step(self, side, inp):
         """
@@ -181,20 +175,57 @@ class BetterNormalGame(object):
             return False
         return True
 
+    def all_valid_coord(self):
+        """returns all valid coordinates
+        """
+        if self.must_move_board:
+            first = self.must_move_board
+            sols = [(first, i) for i in range(len(self.universe[first])) if self.universe[first][i] == 0]
+            return sols
+        else:
+            sols = []
+            for first in range(len(self.universe)):
+                if not isinstance(self.universe[first], int):
+                    for second in range(len(self.universe[first])):
+                        if not self.universe[first][second]:
+                            sols.append((first, second))
+            return sols
+
+    def __eq__(self, other):
+        if not other:
+            return False
+        if self.universe != other.get_universe():
+            return False
+        if self.must_move_board != other.get_must_move_board():
+            return False
+        return True
+
 
 class GameRunner(object):
     """ skeleton code for the program that runs the game,
         probably not going to be used directly"""
-    def __init__(self):
+    def __init__(self, game=None):
         """ Creates an instance of gameRunner
 
             game - an instance of the NormalGame instance
             """
-        self.game = BetterNormalGame()
-
+        if game:
+            self.game = BetterNormalGame(game)
+        else:
+            self.game = BetterNormalGame()
 
 class RandomRunner(GameRunner):
     """ Computer plays against itself using random integers"""
+
+    def run_with_all_valid_coords(self):
+        side = 1
+        while self.game.determine_winner() == None:
+            all_coords = self.game.all_valid_coord()
+            curr_coords = random.choice(all_coords)
+            assert self.game.is_coord_valid(curr_coords)
+            self.game.next_step(side, curr_coords)
+            side = -1 * side
+        return self.game.determine_winner()
 
     def run_game(self):
         """
@@ -226,7 +257,7 @@ def statistical_run(times):
     x = 0
     for y in range(0, times):
         runner = RandomRunner()
-        result = runner.run_game()
+        result = runner.run_with_all_valid_coords()
         if result == BetterNormalGame.cross:
             x += 1
         elif result == BetterNormalGame.circle:
@@ -234,6 +265,7 @@ def statistical_run(times):
     print(o, x)
 
 class TreeRunner(GameRunner):
+    def run_dfs(self):
 
     def next_turn(self, side, side_checked, game, inp, board):
         def enter_cache(number):
