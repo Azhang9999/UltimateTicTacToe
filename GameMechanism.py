@@ -2,6 +2,8 @@
 """This File allows the user to run the game"""
 import random
 import copy
+from statistics import mean
+from deprecated import deprecated
 
 count = 0
 cache = {}
@@ -36,7 +38,7 @@ class BetterNormalGame(object):
             self.must_move_board = None
 
     def get_universe(self):
-        return self.universe.copy()
+        return copy.deepcopy(self.universe)
 
     def get_must_move_board(self):
         return self.must_move_board
@@ -139,6 +141,7 @@ class BetterNormalGame(object):
         assert (self.universe[coordinate[0]][coordinate[1]] == 0)
         self.universe[coordinate[0]][coordinate[1]] = side
         self.determine_ownership(coordinate[0])
+        self.determine_ownership(coordinate[1])
         self.must_move_board = coordinate[1]
         if isinstance(self.universe[coordinate[1]], int):
             self.must_move_board = None
@@ -151,12 +154,9 @@ class BetterNormalGame(object):
 
         side - self.circle or self.cross denoting the side that is playing
         inp - (<int>,<int>) denoting the coordinate that is being played
-        board - the board that has to be placed on
         """
         assert not self.determine_winner(), "{} already won".format(BetterNormalGame.convert_side_int_to_str(
             self.determine_winner()))
-        if not self.must_move_board and isinstance(self.universe[inp[0]], int):
-            self.must_move_board = None
         self.move(side, inp)
 
     def is_coord_valid(self, coordinate):
@@ -199,6 +199,9 @@ class BetterNormalGame(object):
         if self.must_move_board != other.get_must_move_board():
             return False
         return True
+    
+    def __hash__(self):
+        return self.__str__().__hash__()
 
 
 class GameRunner(object):
@@ -227,6 +230,7 @@ class RandomRunner(GameRunner):
             side = -1 * side
         return self.game.determine_winner()
 
+    @deprecated
     def run_game(self):
         """
         Runs a game randomly until it finishes.
@@ -264,98 +268,31 @@ def statistical_run(times):
             o += 1
     print(o, x)
 
-class TreeRunner(GameRunner):
-    def run_dfs(self):
 
-    def next_turn(self, side, side_checked, game, inp, board):
-        def enter_cache(number):
-            cross = game.get_cross().copy()
-            cross.sort()
-            cross = tuple(cross)
-            circle = game.get_circle().copy()
-            circle.sort()
-            circle = tuple(circle)
-            cache[(cross, circle, board, side)] = number
-            File = open("UltimateTicTacToeData.out", 'a+')
-            File.write(str(number)+ str(game.cross) + "," + str(game.circle) + "\n")
-            File.close()
-        def has_board():
-            if board in game.freeBoards:
-                listOfOkay = []
-                overallScore = 0
-                for element in game.empty:
-                    if element[0] == board:
-                        listOfOkay.append(element)
-                for inp in listOfOkay:
-                    score = self.next_turn((side+1) % 2, side_checked, game.copy(), inp, board)
-                    if score == 1:
-                        return 1
-                    elif score == 0:
-                        #print("has_board response")
-                        return 0
-                    else:
-                        overallScore += score
-                return overallScore / len(listOfOkay)
-        board = game.next_step(side, inp, board)
-##        if input() == 'n':
-##            print(game.show_game())
-        #print (game.determineWinner(), side, inp, game.xBoards, game.oBoards, game.circle)
-        assert abs(len(game.cross)-len(game.circle)) <= 1
-        #### CHECK CACHE ####
-        cross = game.get_cross()
-        cross.sort()
-        cross = tuple(cross)
-        circle = game.get_circle()
-        circle.sort()
-        circle = tuple(circle)
-        if (cross, circle, board, side) in cache:
-            return cache[(cross, circle, board, side)]
-        #### CHECKING BASE CONDITIONS ####
-        global count
-        if game.determine_winner() == 'x':
-            enter_cache(1)
-            count = count + 1
-            print(count)
-            #print("WE WON")
-            return 1
-        elif game.determine_winner() == 'o':
-            enter_cache(0)
-            #print ("ENTERED: ", game.circle)
-            #print ("---------------------------------")
-            count += 1
-            print(count)
-            return 0
-        elif len(game.freeBoards) == 0:
-            assert game.determine_winner() == None, "actual winner : {}".format(game.determine_winner())
-            enter_cache(0.5)
-            #print ("---------------------------------")
-            count += 1
-            print(count)
-            return 0.5
-        #### RUNNING NEXT LEVEL ####
-        else:
-            if board in game.freeBoards:
-                x = has_board()
-                enter_cache(x)
-                if x == 0:
-                    return 0.01
-                elif x == 1:
-                    return 0.99
-                return x
-            else:
-                answer = 0
-                for board in game.freeBoards:
-                    x = has_board()
-                    if x == 0:
-                        enter_cache(0.01)
-                        return 0.01
-                    elif x == 1:
-                        enter_cache(0.99)
-                        return 0.99
-                    answer += x
-                answer = answer / len(game.freeBoards)
-                enter_cache(answer)
-                return answer
+class TreeRunner(GameRunner):
+    cache = {}
+
+    def dfs(self, side):
+        curr_winner = self.game.determine_winner()
+        if curr_winner != None:
+            self.cache_results(side, curr_winner)
+            return self.game.determine_winner()
+        if (self.game, side) in cache:
+            return cache[(self.game, side)]
+        rest_results = []
+        for i in self.game.all_valid_coord():
+            branch = TreeRunner(self.game)
+            branch.game.next_step(side, i)
+            rest_results.append(branch.dfs(side*-1))
+        results = mean(rest_results)
+        self.cache_results(side, results)
+        return results
+
+    def cache_results(self, side, results):
+        TreeRunner.cache[(str(self.game), side)] = results
+        file = open("UltimateTicTacToeData.out", 'a+')
+        file.write(str(self.game) + str(side) + str(results) + "\n")
+        file.close()
 
     def run_game_first(self):
         """runs the code and do a depth first search for the best solution
@@ -370,16 +307,12 @@ class TreeRunner(GameRunner):
 
             USE next_turn to do recursion
             """
-        File = open('UltimateTicTacToeData.out', 'w')
-        File.write('START')
-        File.close()
-        firstMoveDict = {}
-        for x in range(1,10):
-            for y in range(1, 10):
-                print("Branch in progress:", (x,y))
-                firstMoveDict[(x,y)] = self.next_turn(1, 'x', self.game.copy(), (x, y), None)
-        return firstMoveDict
+        file = open('UltimateTicTacToeData.out', 'w')
+        file.write('START')
+        file.close()
+        return self.dfs(BetterNormalGame.cross)
 
 
 if __name__ == "__main__":
-    statistical_run(100)
+    runner = TreeRunner()
+    runner.run_game_first()
