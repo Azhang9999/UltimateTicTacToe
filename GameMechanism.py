@@ -4,10 +4,7 @@ import random
 import copy
 from statistics import mean
 from deprecated import deprecated
-
-count = 0
-cache = {}
-
+import json
 
 class BetterNormalGame(object):
     """
@@ -203,6 +200,9 @@ class BetterNormalGame(object):
     def __hash__(self):
         return self.__str__().__hash__()
 
+    def __repr__(self):
+        return str(self.universe) + str(self.must_move_board)
+
 
 class GameRunner(object):
     """ skeleton code for the program that runs the game,
@@ -277,8 +277,8 @@ class TreeRunner(GameRunner):
         if curr_winner != None:
             self.cache_results(side, curr_winner)
             return self.game.determine_winner()
-        if (self.game, side) in cache:
-            return cache[(self.game, side)]
+        if (self.game, side) in self.cache:
+            return self.cache[(self.game, side)]
         rest_results = []
         for i in self.game.all_valid_coord():
             branch = TreeRunner(self.game)
@@ -289,9 +289,19 @@ class TreeRunner(GameRunner):
         return results
 
     def cache_results(self, side, results):
-        TreeRunner.cache[(str(self.game), side)] = results
+        TreeRunner.cache[(self.game, side)] = results
+        self.write_as_json()
+
+    def write_as_json(self):
+        with open("dfs_tree_results.json", "w") as f:
+            k = self.cache.keys()
+            v = self.cache.values()
+            k1 = [str(i) for i in k]
+            json.dump(json.dumps(dict(zip(*[k1, v])), indent=4), f)
+
+    def write_as_text(self, side, results):
         file = open("UltimateTicTacToeData.out", 'a+')
-        file.write(str(self.game) + str(side) + str(results) + "\n")
+        file.write(str(self.game) + str(side) + "\n" + str(results) + "\n")
         file.close()
 
     def run_game_first(self):
@@ -308,7 +318,7 @@ class TreeRunner(GameRunner):
             USE next_turn to do recursion
             """
         file = open('UltimateTicTacToeData.out', 'w')
-        file.write('START')
+        file.write("START")
         file.close()
         return self.dfs(BetterNormalGame.cross)
 
